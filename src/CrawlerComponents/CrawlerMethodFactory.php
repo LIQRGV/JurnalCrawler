@@ -5,6 +5,7 @@ namespace LIQRGV\JurnalCrawler\CrawlerComponents;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\DefaultArticleCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\TocArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 
@@ -27,6 +28,9 @@ class CrawlerMethodFactory
         if (self::isDefaultArticleCrawler($url, $issueId)) {
             Log::info("Using " . DefaultArticleCrawler::class);
             return DefaultArticleCrawler::class;
+        } else if (self::isTocArticleCrawler($url, $issueId)) {
+            Log::info("Using " . TocArticleCrawler::class);
+            return TocArticleCrawler::class;
         }
 
         throw new Exception("No matching article crawler");
@@ -59,7 +63,21 @@ class CrawlerMethodFactory
             $issuePage = Helper::getPageFromUrl($targetUrl);
             Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
         } catch (\Exception $e) {
-            echo $e->getMessage() . ". Skip default issue crawler";
+            echo $e->getMessage() . ". Skip default article crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isTocArticleCrawler(string $url, int $issueId)
+    {
+        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $issueId . '\/showToc', $url);
+        try {
+            $issuePage = Helper::getPageFromUrl($targetUrl);
+            Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
+        } catch (\Exception $e) {
+            echo $e->getMessage() . ". Skip default article crawler";
             return false;
         }
 
