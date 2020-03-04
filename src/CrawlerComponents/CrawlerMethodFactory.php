@@ -6,8 +6,11 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\DefaultArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\TocArticleCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DefaultAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DefaultKeywordCrawler;
 use LIQRGV\JurnalCrawler\Helper\Helper;
+use Psr\Http\Message\ResponseInterface;
 
 class CrawlerMethodFactory
 {
@@ -34,6 +37,34 @@ class CrawlerMethodFactory
         }
 
         throw new Exception("No matching article crawler");
+    }
+
+    public static function getAuthorCrawlerMethod(string $url, int $articleId)
+    {
+        $targetUrl = preg_replace('/issue\/archive/', 'article/view/' . $articleId, $url);
+        $articlePage = Helper::getPageFromUrl($targetUrl);
+
+        Log::info("Get author crawler method");
+        if (self::isDefaultAuthorCrawler($articlePage)) {
+            Log::info("Using " . DefaultAuthorCrawler::class);
+            return DefaultAuthorCrawler::class;
+        }
+
+        throw new Exception("No matching author crawler");
+    }
+
+    public static function getKeywordCrawlerMethod($url, int $articleId)
+    {
+        $targetUrl = preg_replace('/issue\/archive/', 'article/view/' . $articleId, $url);
+        $articlePage = Helper::getPageFromUrl($targetUrl);
+
+        Log::info("Get author crawler method");
+        if (self::isDefaultKeywordCrawler($articlePage)) {
+            Log::info("Using " . DefaultKeywordCrawler::class);
+            return DefaultKeywordCrawler::class;
+        }
+
+        throw new Exception("No matching keyword crawler");
     }
 
     private static function isDefaultIssueCrawler(string $url)
@@ -77,7 +108,31 @@ class CrawlerMethodFactory
             $issuePage = Helper::getPageFromUrl($targetUrl);
             Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
         } catch (\Exception $e) {
-            echo $e->getMessage() . ". Skip default article crawler";
+            echo $e->getMessage() . ". Skip toc article crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDefaultAuthorCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="authorString"><em>(.*)<\/em><\/div>/', 'Author');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip default author crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDefaultKeywordCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleSubject">[\s\S]+?<div>([\s\S]+?)<\/div>/', 'Keyword');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip default keyword crawler";
             return false;
         }
 

@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Crawlable;
+use LIQRGV\JurnalCrawler\CrawlerComponents\CrawlerMethodFactory;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 use LIQRGV\JurnalCrawler\Models\Article;
 use LIQRGV\JurnalCrawler\Models\Author;
@@ -39,9 +41,9 @@ class SaveArticleJob implements ShouldQueue
         $this->articleId = $articleId;
     }
 
-    public function handle() {
+    public function handle(Dispatcher $dispatcher) {
         try {
-            $this->crawlArticle($this->site, $this->articleId);
+            $this->crawlArticle($this->site, $this->articleId, $dispatcher);
         } catch (\Exception $e) {
             Issue::query()->where([
                 'site_id' => $this->site->id,
@@ -52,9 +54,17 @@ class SaveArticleJob implements ShouldQueue
         }
     }
 
-    private function crawlArticle($site, int $articleId)
+    private function crawlArticle($site, int $articleId, Dispatcher $dispatcher)
     {
         $targetUrl = preg_replace('/issue\/archive/', 'article/view/' . $articleId, $site->url);
+        $siteArticleId = $this->articleId;
+
+        $articleId = Article::query()->insertGetId([
+            'site_id' => $site->id,
+            'site_article_id' => $articleId,
+            'url' => $targetUrl,
+            'issue_id' => $this->issueId,
+        ]);
 
         $getDelimiter = function ($text) {
             if (strpos($text, ';') !== false) {
@@ -65,47 +75,17 @@ class SaveArticleJob implements ShouldQueue
         };
 
         $articlePage = Helper::getPageFromUrl($targetUrl);
-        $authorCapture = Helper::getByRegexOnResponse($articlePage, '/<div id="authorString"><em>(.*)<\/em><\/div>/');
 
-        if (empty($authorCapture[1]) || empty($authorCapture[1][0])) {
-            return;
-        }
+        $crawlerAuthorMethodClass = CrawlerMethodFactory::getAuthorCrawlerMethod($this->site->url, $siteArticleId);
+        /** @var Crawlable $issueCrawlerMethod */
+        $authorCrawlerMethod = new $crawlerAuthorMethodClass($articlePage, $this->site, $articleId);
+        $authorCrawlerMethod->run($dispatcher);
 
-        $keywordCapture = Helper::getByRegexOnResponse($articlePage, '/<div id="articleSubject">[\s\S]+?<div>([\s\S]+?)<\/div>/');
+        $crawlerKeywordMethodClass = CrawlerMethodFactory::getKeywordCrawlerMethod($this->site->url, $siteArticleId);
+        /** @var Crawlable $issueCrawlerMethod */
+        $keywordCrawlerMethod = new $crawlerKeywordMethodClass($articlePage, $this->site, $articleId);
+        $keywordCrawlerMethod->run($dispatcher);
 
-        if (empty($keywordCapture[1]) || empty($keywordCapture[1][0])) {
-            return;
-        }
-
-        $authorsString = $authorCapture[1][0];
-        $authorsDelim = $getDelimiter($authorsString);
-        $authorsArray = explode($authorsDelim, $authorsString);
-
-        $keywordString = $keywordCapture[1][0];
-        $keywordDelim = $getDelimiter($keywordString);
-        $keywordArray = explode($keywordDelim, $keywordString);
-
-        $articleId = Article::query()->insertGetId([
-            'site_id' => $site->id,
-            'site_article_id' => $articleId,
-            'url' => $targetUrl,
-            'issue_id' => $this->issueId,
-        ]);
-
-        foreach ($authorsArray as $author) {
-            Author::query()->insert([
-                'article_id' => $articleId,
-                'author_name' => trim($author),
-            ]);
-        }
-
-        foreach ($keywordArray as $keyword) {
-            Keyword::query()->insert([
-                'article_id' => $articleId,
-                'keyword' => trim($keyword),
-            ]);
-        }
-
-        Log::info("Article " . $targetUrl . " saved");
+        Log::info("Article " . $targetUrl . " queued");
     }
 }

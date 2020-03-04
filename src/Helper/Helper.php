@@ -38,4 +38,12 @@ class Helper
 
         return $out;
     }
+
+    public static function getDelimiter(string $text) {
+        if (strpos($text, ';') !== false) {
+            return ';';
+        }
+
+        return ',';
+    }
 }
