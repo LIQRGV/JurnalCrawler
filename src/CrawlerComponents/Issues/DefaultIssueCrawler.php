@@ -1,18 +1,19 @@
 <?php
 
 
-namespace LIQRGV\JurnalCrawler\CrawlerComponent;
+namespace LIQRGV\JurnalCrawler\CrawlerComponents\Issues;
 
 
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Crawlable;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 use LIQRGV\JurnalCrawler\Jobs\SaveIssueJob;
 use LIQRGV\JurnalCrawler\Models\Issue;
 use LIQRGV\JurnalCrawler\Models\Site;
 
-class DefaultCrawler extends BaseCrawler implements Crawlable
+class DefaultIssueCrawler extends BaseIssueCrawler implements Crawlable
 {
     function run(Dispatcher $dispatcher)
     {
@@ -21,7 +22,7 @@ class DefaultCrawler extends BaseCrawler implements Crawlable
         ]);
 
         $archivePage = Helper::getPageFromUrl($this->url);
-        $allIssues = Helper::getByRegexOnUrl($archivePage, '/http.+issue\/view\/(\d+)/');
+        $allIssues = Helper::getByRegexOnResponse($archivePage, '/http.+issue\/view\/(\d+)/');
         if (empty($allIssues) || empty($allIssues[1])) {
             Log::info("No issue found");
             return;
@@ -43,6 +44,6 @@ class DefaultCrawler extends BaseCrawler implements Crawlable
             $dispatcher->dispatch($saveIssueJob);
         }
 
-        Log::info("Done queueing crawler " . $this->url);
+        Log::info("Done queueing issue crawler " . $this->url);
     }
 }

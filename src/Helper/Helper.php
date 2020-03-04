@@ -19,7 +19,7 @@ class Helper
 
         return $response;
     }
-    public static function getFirstRegexOnUrl(ResponseInterface $response, $regexToSearch, $tag = 'Entry')
+    public static function getFirstRegexOnResponse(ResponseInterface $response, $regexToSearch, $tag = 'Entry')
     {
         $out = [];
         preg_match_all($regexToSearch, (string)$response->getBody(), $out);
@@ -31,7 +31,7 @@ class Helper
         throw new \Exception("No " . $tag . " found");
     }
 
-    public static function getByRegexOnUrl(ResponseInterface $response, $regexToSearch)
+    public static function getByRegexOnResponse(ResponseInterface $response, $regexToSearch)
     {
         $out = [];
         preg_match_all($regexToSearch, (string)$response->getBody(), $out);

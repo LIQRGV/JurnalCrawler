@@ -65,13 +65,13 @@ class SaveArticleJob implements ShouldQueue
         };
 
         $articlePage = Helper::getPageFromUrl($targetUrl);
-        $authorCapture = Helper::getByRegexOnUrl($articlePage, '/<div id="authorString"><em>(.*)<\/em><\/div>/');
+        $authorCapture = Helper::getByRegexOnResponse($articlePage, '/<div id="authorString"><em>(.*)<\/em><\/div>/');
 
         if (empty($authorCapture[1]) || empty($authorCapture[1][0])) {
             return;
         }
 
-        $keywordCapture = Helper::getByRegexOnUrl($articlePage, '/<div id="articleSubject">[\s\S]+?<div>([\s\S]+?)<\/div>/');
+        $keywordCapture = Helper::getByRegexOnResponse($articlePage, '/<div id="articleSubject">[\s\S]+?<div>([\s\S]+?)<\/div>/');
 
         if (empty($keywordCapture[1]) || empty($keywordCapture[1][0])) {
             return;

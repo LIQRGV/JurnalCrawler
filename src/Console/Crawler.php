@@ -3,8 +3,8 @@ namespace LIQRGV\JurnalCrawler\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Bus\Dispatcher;
-use LIQRGV\JurnalCrawler\CrawlerComponent\Crawlable;
-use LIQRGV\JurnalCrawler\CrawlerComponent\CrawlerMethodFactory;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Crawlable;
+use LIQRGV\JurnalCrawler\CrawlerComponents\CrawlerMethodFactory;
 use Symfony\Component\Console\Input\InputOption;
 
 class Crawler extends Command
@@ -26,7 +26,7 @@ class Crawler extends Command
 
     public function handle(Dispatcher $dispatcher) {
         $url = $this->option('url');
-        $crawlerMethodClass = CrawlerMethodFactory::getCrawlerMethod($url);
+        $crawlerMethodClass = CrawlerMethodFactory::getIssueCrawlerMethod($url);
         /** @var Crawlable $crawlerMethod */
         $crawlerMethod = new $crawlerMethodClass($url);
         $crawlerMethod->run($dispatcher);

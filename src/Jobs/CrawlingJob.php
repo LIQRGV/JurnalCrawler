@@ -7,8 +7,8 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use LIQRGV\JurnalCrawler\CrawlerComponent\Crawlable;
-use LIQRGV\JurnalCrawler\CrawlerComponent\CrawlerMethodFactory;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Crawlable;
+use LIQRGV\JurnalCrawler\CrawlerComponents\CrawlerMethodFactory;
 
 class CrawlingJob implements ShouldQueue
 {
@@ -25,9 +25,9 @@ class CrawlingJob implements ShouldQueue
     }
 
     public function handle(Dispatcher $dispatcher) {
-        $crawlerMethodClass = CrawlerMethodFactory::getCrawlerMethod($this->baseUrl);
-        /** @var Crawlable $crawlerMethod */
-        $crawlerMethod = new $crawlerMethodClass($this->baseUrl);
-        $crawlerMethod->run($dispatcher);
+        $crawlerMethodClass = CrawlerMethodFactory::getIssueCrawlerMethod($this->baseUrl);
+        /** @var Crawlable $issueCrawlerMethod */
+        $issueCrawlerMethod = new $crawlerMethodClass($this->baseUrl);
+        $issueCrawlerMethod->run($dispatcher);
     }
 }

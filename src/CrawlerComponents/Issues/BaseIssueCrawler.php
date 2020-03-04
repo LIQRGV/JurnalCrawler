@@ -1,10 +1,10 @@
 <?php
 
 
-namespace LIQRGV\JurnalCrawler\CrawlerComponent;
+namespace LIQRGV\JurnalCrawler\CrawlerComponents\Issues;
 
 
-class BaseCrawler
+class BaseIssueCrawler
 {
     protected $url;
 

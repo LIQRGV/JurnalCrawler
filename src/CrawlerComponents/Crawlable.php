@@ -1,7 +1,7 @@
 <?php
 
 
-namespace LIQRGV\JurnalCrawler\CrawlerComponent;
+namespace LIQRGV\JurnalCrawler\CrawlerComponents;
 
 
 use Illuminate\Contracts\Bus\Dispatcher;
