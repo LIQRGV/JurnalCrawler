@@ -9,6 +9,7 @@ use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\TocArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DefaultAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DefaultKeywordCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\NoKeywordCrawler;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 use Psr\Http\Message\ResponseInterface;
 
@@ -64,7 +65,8 @@ class CrawlerMethodFactory
             return DefaultKeywordCrawler::class;
         }
 
-        throw new Exception("No matching keyword crawler");
+        Log::info("No keyword on " . $targetUrl . ". Using " . NoKeywordCrawler::class);
+        return NoKeywordCrawler::class;
     }
 
     private static function isDefaultIssueCrawler(string $url)
