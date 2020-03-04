@@ -89,6 +89,7 @@ class SaveArticleJob implements ShouldQueue
             'site_id' => $site->id,
             'site_article_id' => $articleId,
             'url' => $targetUrl,
+            'issue_id' => $this->issueId,
         ]);
 
         foreach ($authorsArray as $author) {

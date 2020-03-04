@@ -17,6 +17,7 @@ class DefaultArticleCrawler extends BaseArticleCrawler implements Crawlable
 {
     function run(Dispatcher $dispatcher)
     {
+        /** @var Site $site */
         $site = Site::query()->where([
             'url' => $this->url,
         ])->firstOrFail();
