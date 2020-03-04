@@ -1,0 +1,24 @@
+{
+  "name": "liqrgv/jurnal-crawler",
+  "version": "1.0.0",
+  "require": {
+    "vlucas/phpdotenv": "~2.2",
+    "guzzlehttp/guzzle": "~5.3.1|~6.0",
+    "illuminate/database": "5.6.*",
+    "illuminate/console": "5.6.*",
+    "illuminate/redis": "5.6.*",
+    "laravel/lumen-framework": "5.6.*",
+    "servocoder/lumen-horizon": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "LIQRGV\\JurnalCrawler\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/",
+      "database/"
+    ]
+  }
+}
