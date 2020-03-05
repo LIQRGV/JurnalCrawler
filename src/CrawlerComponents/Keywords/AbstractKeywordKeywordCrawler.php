@@ -13,7 +13,7 @@ class AbstractKeywordKeywordCrawler extends BaseKeywordCrawler implements Crawla
 {
     function run(Dispatcher $dispatcher)
     {
-        $keywordCapture = Helper::getByRegexOnResponse($this->respose, '/<div id="articleAbstract">[\s\S]+[Kk]eywords:?([\s\S]+?)<\/p>/');
+        $keywordCapture = Helper::getByRegexOnResponse($this->respose, '/<div id="articleAbstract">[\s\S]+[Kk]ey\s?[Ww]ords?([\s\S]+?)<\/p>/');
 
         if (empty($keywordCapture[1]) || empty($keywordCapture[1][0])) {
             return;

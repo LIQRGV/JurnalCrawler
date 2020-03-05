@@ -9,8 +9,11 @@ use Psr\Http\Message\ResponseInterface;
 class Helper
 {
     public static function getPageFromUrl(string $url) {
-//        Log::info("Crawling " . $url);
-        $client = new Client();
+        Log::info("Crawling " . $url);
+        $client = new Client([
+            'verify' => false,
+            'decode_content' => false,
+        ]);
         $response = $client->request('GET', $url);
 
         if ($response->getStatusCode() != 200) {

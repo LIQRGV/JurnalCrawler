@@ -121,7 +121,7 @@ class CrawlerMethodFactory
 
     private static function isTocArticleCrawler(string $url, int $issueId)
     {
-        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $issueId . '\/showToc', $url);
+        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $issueId . '/showToc', $url);
         try {
             $issuePage = Helper::getPageFromUrl($targetUrl);
             Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
@@ -184,7 +184,7 @@ class CrawlerMethodFactory
     private static function isAbstractKeywordKeywordCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+[Kk]eywords:?([\s\S]+?)<\/p>/', 'Keyword');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+[Kk]ey\s?[Ww]ords?([\s\S]+?)<\/p>/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip abstract keyword keyword crawler";
             return false;
