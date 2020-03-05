@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Log;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\DefaultArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\TocArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DefaultAuthorCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DivItemAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DefaultKeywordCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DivItemKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\NoKeywordCrawler;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 use Psr\Http\Message\ResponseInterface;
@@ -49,6 +51,9 @@ class CrawlerMethodFactory
         if (self::isDefaultAuthorCrawler($articlePage)) {
             Log::info("Using " . DefaultAuthorCrawler::class);
             return DefaultAuthorCrawler::class;
+        } else if (self::isDivItemAuthorCrawler($articlePage)) {
+            Log::info("Using " . DivItemAuthorCrawler::class);
+            return DivItemAuthorCrawler::class;
         }
 
         throw new Exception("No matching author crawler");
@@ -63,6 +68,9 @@ class CrawlerMethodFactory
         if (self::isDefaultKeywordCrawler($articlePage)) {
             Log::info("Using " . DefaultKeywordCrawler::class);
             return DefaultKeywordCrawler::class;
+        } else if (self::isDivItemKeywordCrawler($articlePage)) {
+            Log::info("Using " . DivItemKeywordCrawler::class);
+            return DivItemKeywordCrawler::class;
         }
 
         Log::info("No keyword on " . $targetUrl . ". Using " . NoKeywordCrawler::class);
@@ -74,7 +82,7 @@ class CrawlerMethodFactory
         $isArchive = self::isArchive($url);
 
         if (!$isArchive) {
-            echo "URL is not base archive. Skip default crawler";
+            echo "URL is not base archive. Skip default issue crawler";
             return false;
         }
 
@@ -129,12 +137,36 @@ class CrawlerMethodFactory
         return true;
     }
 
+    private static function isDivItemAuthorCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<span class="name">([\s\S]+?)<\/span>/', 'Author');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip div item author crawler";
+            return false;
+        }
+
+        return true;
+    }
+
     private static function isDefaultKeywordCrawler(ResponseInterface $articlePage)
     {
         try {
             Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleSubject">[\s\S]+?<div>([\s\S]+?)<\/div>/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip default keyword crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDivItemKeywordCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<div class="item keywords">[\s\S]+<span class="value">([\s\S]+?)<\/span>/', 'Keyword');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip div item keyword crawler";
             return false;
         }
 

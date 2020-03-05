@@ -42,8 +42,16 @@ class SaveArticleJob implements ShouldQueue
     }
 
     public function handle(Dispatcher $dispatcher) {
+        $targetUrl = preg_replace('/issue\/archive/', 'article/view/' . $this->articleId, $this->site->url);
+        $articleId = Article::query()->insertGetId([
+            'site_id' => $this->site->id,
+            'site_article_id' => $this->articleId,
+            'url' => $targetUrl,
+            'issue_id' => $this->issueId,
+        ]);
+
         try {
-            $this->crawlArticle($this->site, $this->articleId, $dispatcher);
+            $this->crawlArticle($this->site, $this->articleId, $targetUrl, $articleId, $dispatcher);
         } catch (\Exception $e) {
             Issue::query()->where([
                 'site_id' => $this->site->id,
@@ -51,39 +59,28 @@ class SaveArticleJob implements ShouldQueue
             ])->update([
                 "is_complete" => false,
             ]);
+
+            Keyword::query()->where([
+                'article_id' => $articleId,
+            ])->delete();
+            Author::query()->where([
+                'article_id' => $articleId,
+            ])->delete();
         }
     }
 
-    private function crawlArticle($site, int $articleId, Dispatcher $dispatcher)
+    private function crawlArticle($site, int $siteArticleId, string $targetUrl, $articleId, Dispatcher $dispatcher)
     {
-        $targetUrl = preg_replace('/issue\/archive/', 'article/view/' . $articleId, $site->url);
-        $siteArticleId = $this->articleId;
-
-        $articleId = Article::query()->insertGetId([
-            'site_id' => $site->id,
-            'site_article_id' => $articleId,
-            'url' => $targetUrl,
-            'issue_id' => $this->issueId,
-        ]);
-
-        $getDelimiter = function ($text) {
-            if (strpos($text, ';') !== false) {
-                return ';';
-            }
-
-            return ',';
-        };
-
         $articlePage = Helper::getPageFromUrl($targetUrl);
 
-        $crawlerAuthorMethodClass = CrawlerMethodFactory::getAuthorCrawlerMethod($this->site->url, $siteArticleId);
-        /** @var Crawlable $issueCrawlerMethod */
-        $authorCrawlerMethod = new $crawlerAuthorMethodClass($articlePage, $this->site, $articleId);
+        $crawlerAuthorMethodClass = CrawlerMethodFactory::getAuthorCrawlerMethod($site->url, $siteArticleId);
+        /** @var Crawlable $authorCrawlerMethod */
+        $authorCrawlerMethod = new $crawlerAuthorMethodClass($articlePage, $site, $articleId);
         $authorCrawlerMethod->run($dispatcher);
 
-        $crawlerKeywordMethodClass = CrawlerMethodFactory::getKeywordCrawlerMethod($this->site->url, $siteArticleId);
-        /** @var Crawlable $issueCrawlerMethod */
-        $keywordCrawlerMethod = new $crawlerKeywordMethodClass($articlePage, $this->site, $articleId);
+        $crawlerKeywordMethodClass = CrawlerMethodFactory::getKeywordCrawlerMethod($site->url, $siteArticleId);
+        /** @var Crawlable $keywordCrawlerMethod */
+        $keywordCrawlerMethod = new $crawlerKeywordMethodClass($articlePage, $site, $articleId);
         $keywordCrawlerMethod->run($dispatcher);
 
         Log::info("Article " . $targetUrl . " queued");
