@@ -2,6 +2,7 @@
 
 namespace LIQRGV\JurnalCrawler\Helper;
 
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
@@ -10,11 +11,16 @@ class Helper
 {
     public static function getPageFromUrl(string $url) {
         Log::info("Crawling " . $url);
-        $client = new Client([
-            'verify' => false,
-            'decode_content' => false,
-        ]);
-        $response = $client->request('GET', $url);
+        $client = new Client();
+        try {
+            $response = $client->request('GET', $url);
+        } catch (Exception $e) {
+            $client = new Client([
+                'verify' => false,
+                'decode_content' => false,
+            ]);
+            $response = $client->request('GET', $url);
+        }
 
         if ($response->getStatusCode() != 200) {
             throw new \Exception("Error while crawling " . $url . ". Status: " . $response->getStatusCode());
