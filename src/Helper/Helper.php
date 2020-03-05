@@ -11,13 +11,16 @@ class Helper
 {
     public static function getPageFromUrl(string $url) {
         Log::info("Crawling " . $url);
-        $client = new Client();
+        $client = new Client(
+            ['headers' => ['User-Agent' => 'dummy']]
+        );
         try {
             $response = $client->request('GET', $url);
         } catch (Exception $e) {
             $client = new Client([
                 'verify' => false,
                 'decode_content' => false,
+                'headers' => ['User-Agent' => 'dummy']
             ]);
             $response = $client->request('GET', $url);
         }
