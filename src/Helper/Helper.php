@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 class Helper
 {
     public static function getPageFromUrl(string $url) {
-        Log::info("Crawling " . $url);
+//        Log::info("Crawling " . $url);
         $client = new Client();
         $response = $client->request('GET', $url);
 
