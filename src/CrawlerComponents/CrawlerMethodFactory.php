@@ -27,7 +27,7 @@ class CrawlerMethodFactory
             return DefaultIssueCrawler::class;
         }
 
-        throw new Exception("No matching issue crawler");
+        throw new Exception("No matching issue crawler for " . $url);
     }
 
     public static function getArticleCrawlerMethod(string $url, int $issueId)
