@@ -14,6 +14,8 @@ use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\AbstractKeywordKeywordCrawle
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DefaultKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DivItemKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\NoKeywordCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\SubjectBlockKataKunciDivKeywordCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\SubjectBlockKeywordDivKeywordCrawler;
 use LIQRGV\JurnalCrawler\Helper\Helper;
 use Psr\Http\Message\ResponseInterface;
 
@@ -76,9 +78,15 @@ class CrawlerMethodFactory
         } else if (self::isAbstractKeywordKeywordCrawler($articlePage)) {
             Log::info("Using " . AbstractKeywordKeywordCrawler::class);
             return AbstractKeywordKeywordCrawler::class;
+        } else if (self::isSubjectBlockKeywordDivKeywordCrawler($articlePage)) {
+            Log::info("Using " . SubjectBlockKeywordDivKeywordCrawler::class);
+            return SubjectBlockKeywordDivKeywordCrawler::class;
         } else if (self::isAbstractKataKunciKeywordCrawler($articlePage)) {
             Log::info("Using " . AbstractKataKunciKeywordCrawler::class);
             return AbstractKataKunciKeywordCrawler::class;
+        } else if (self::isSubjectBlockKataKunciDivKeywordCrawler($articlePage)) {
+            Log::info("Using " . SubjectBlockKataKunciDivKeywordCrawler::class);
+            return SubjectBlockKataKunciDivKeywordCrawler::class;
         }
 
         Log::info("No keyword on " . $targetUrl . ". Using " . NoKeywordCrawler::class);
@@ -136,7 +144,7 @@ class CrawlerMethodFactory
     private static function isDefaultAuthorCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="authorString"><em>(.*)<\/em><\/div>/', 'Author');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="authorString">[\s\S]+?<em>(.*)<\/em><\/div>/', 'Author');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip default author crawler";
             return false;
@@ -193,12 +201,44 @@ class CrawlerMethodFactory
         return true;
     }
 
+    private static function isSubjectBlockKeywordDivKeywordCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse(
+                $articlePage,
+                '/<div id="articleSubject" class="block">[\s\S]+?[Kk]ey\s?[Ww]ords?[\s\S]+?<div>([\s\S]+?)<\/div>/',
+                'Keyword'
+            );
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip subject block keyword div keyword crawler";
+            return false;
+        }
+
+        return true;
+    }
+
     private static function isAbstractKataKunciKeywordCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+Kata [Kk]unci:?([\s\S]+?)<\/p>/', 'Keyword');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+Kata [Kk]unci?([\s\S]+?)<\/p>/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip abstract kata kunci keyword crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isSubjectBlockKataKunciDivKeywordCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse(
+                $articlePage,
+                '/<div id="articleSubject" class="block">[\s\S]+?Kata [Kk]unci?[\s\S]+?<div>([\s\S]+?)<\/div>/',
+                'Keyword'
+            );
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip subject block keyword div keyword crawler";
             return false;
         }
 

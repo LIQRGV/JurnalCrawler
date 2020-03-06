@@ -53,6 +53,7 @@ class SaveArticleJob implements ShouldQueue
         try {
             $this->crawlArticle($this->site, $this->articleId, $targetUrl, $articleId, $dispatcher);
         } catch (\Exception $e) {
+            Log::error("Exception occurred on " . $targetUrl);
             Issue::query()->where([
                 'site_id' => $this->site->id,
                 'site_issue_id' => $this->issueId,

@@ -13,7 +13,7 @@ class DefaultAuthorCrawler extends BaseAuthorCrawler implements Crawlable
 {
     function run(Dispatcher $dispatcher)
     {
-        $authorCapture = Helper::getByRegexOnResponse($this->response, '/<div id="authorString"><em>(.*)<\/em><\/div>/');
+        $authorCapture = Helper::getByRegexOnResponse($this->response, '/<div id="authorString">[\s\S]+?<em>(.*)<\/em><\/div>/');
 
         if (empty($authorCapture[1]) || empty($authorCapture[1][0])) {
             return;
