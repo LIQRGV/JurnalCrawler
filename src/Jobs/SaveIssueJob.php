@@ -46,9 +46,10 @@ class SaveIssueJob implements ShouldQueue
         $issueCrawlerMethod = new $crawlerMethodClass($this->site->url, $this->issueId);
         $issueCrawlerMethod->run($dispatcher);
 
-        Issue::query()->insert([
+        Issue::query()->updateOrInsert([
             'site_id' => $site->id,
             'site_issue_id' => $issueId,
+        ], [
             'is_complete' => true,
         ]);
     }

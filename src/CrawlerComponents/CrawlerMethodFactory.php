@@ -144,7 +144,7 @@ class CrawlerMethodFactory
     private static function isDefaultAuthorCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="authorString">[\s\S]+?<em>(.*)<\/em><\/div>/', 'Author');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="authorString">[\s\S]*?<em>(.*)<\/em><\/div>/', 'Author');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip default author crawler";
             return false;
