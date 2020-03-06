@@ -4,42 +4,20 @@
 namespace LIQRGV\JurnalCrawler\CrawlerComponents\Keywords;
 
 
-use Illuminate\Contracts\Bus\Dispatcher;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Crawlable;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\Traits\RegexSanitizedKeyword;
 use LIQRGV\JurnalCrawler\Helper\Helper;
-use LIQRGV\JurnalCrawler\Models\Keyword;
+use Psr\Http\Message\ResponseInterface;
 
-class SubjectBlockKeywordDivKeywordCrawler extends BaseKeywordCrawler implements Crawlable
+class SubjectBlockKeywordDivKeywordCrawler extends RegexKeywordCrawler implements Crawlable
 {
-    function run(Dispatcher $dispatcher)
+    use RegexSanitizedKeyword;
+
+    function getKeywordCapture(ResponseInterface $response): array
     {
-        $keywordCapture = Helper::getByRegexOnResponse(
-            $this->respose,
+        return Helper::getByRegexOnResponse(
+            $response,
             '/<div id="articleSubject" class="block">[\s\S]+?[Kk]ey\s?[Ww]ords?[\s\S]+?<div>([\s\S]+?)<\/div>/'
         );
-
-        if (empty($keywordCapture[1]) || empty($keywordCapture[1][0])) {
-            return;
-        }
-
-        $keywordString = $keywordCapture[1][0];
-        $keywordDelim = Helper::getDelimiter($keywordString);
-        $keywordArray = explode($keywordDelim, $keywordString);
-        $sanitizedKeywordArray = array_map(
-            function($item) {
-                $out = [];
-                preg_match_all('/[a-zA-Z\-\s]+/', $item, $out);
-                return $out[0][0];
-            },
-            str_replace(':', '',
-                preg_replace('/<.*>/', '', $keywordArray))
-        );
-
-        foreach ($sanitizedKeywordArray as $keyword) {
-            Keyword::query()->insert([
-                'article_id' => $this->articleId,
-                'keyword' => trim($keyword),
-            ]);
-        }
     }
 }
