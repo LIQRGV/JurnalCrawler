@@ -17,7 +17,7 @@ class SubjectBlockKeywordDivKeywordCrawler extends RegexKeywordCrawler implement
     {
         return Helper::getByRegexOnResponse(
             $response,
-            '/<div id="articleSubject" class="block">[\s\S]+?[Kk]ey\s?[Ww]ords?[\s\S]+?<div>([\s\S]+?)<\/div>/'
+            '/<div id="articleSubject"(\wclass="block")?>[\s\S]+?[Kk]ey\s?[Ww]ords?[\s\S]+?<div>([\s\S]+?)<\/div>/'
         );
     }
 }

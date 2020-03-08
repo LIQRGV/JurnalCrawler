@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\DefaultArticleCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Articles\TocArticleCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\ArticleTitleAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DefaultAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Authors\DivItemAuthorCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
@@ -58,6 +59,9 @@ class CrawlerMethodFactory
         } else if (self::isDivItemAuthorCrawler($articlePage)) {
             Log::info("Using " . DivItemAuthorCrawler::class);
             return DivItemAuthorCrawler::class;
+        } else if (self::isArticleTitleAuthorCrawler($articlePage)) {
+            Log::info("Using " . ArticleTitleAuthorCrawler::class);
+            return ArticleTitleAuthorCrawler::class;
         }
 
         throw new Exception("No matching author crawler");
@@ -159,6 +163,18 @@ class CrawlerMethodFactory
             Helper::getFirstRegexOnResponse($articlePage, '/<span class="name">([\s\S]+?)<\/span>/', 'Author');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip div item author crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isArticleTitleAuthorCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleTitle">[\s\S]*?<\/div>[\s\S]*?<br>([\s\S]+?)<br>/', 'Author');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip article title author crawler";
             return false;
         }
 

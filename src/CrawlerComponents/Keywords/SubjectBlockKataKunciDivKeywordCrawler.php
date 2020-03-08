@@ -17,7 +17,7 @@ class SubjectBlockKataKunciDivKeywordCrawler extends RegexKeywordCrawler impleme
     {
         return Helper::getByRegexOnResponse(
             $response,
-            '/<div id="articleSubject" class="block">[\s\S]+?Kata [Kk]unci?[\s\S]+?<div>([\s\S]+?)<\/div>/'
+            '/<div id="articleSubject"(\wclass="block")?>[\s\S]+?Kata [Kk]unci?[\s\S]+?<div>([\s\S]+?)<\/div>/'
         );
     }
 }
