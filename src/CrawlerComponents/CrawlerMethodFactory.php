@@ -13,6 +13,7 @@ use LIQRGV\JurnalCrawler\CrawlerComponents\Issues\DefaultIssueCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\AbstractKataKunciKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\AbstractKeywordKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DefaultKeywordCrawler;
+use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DivItemAbstractKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\DivItemKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\NoKeywordCrawler;
 use LIQRGV\JurnalCrawler\CrawlerComponents\Keywords\SubjectBlockKataKunciDivKeywordCrawler;
@@ -79,6 +80,9 @@ class CrawlerMethodFactory
         } else if (self::isDivItemKeywordCrawler($articlePage)) {
             Log::info("Using " . DivItemKeywordCrawler::class);
             return DivItemKeywordCrawler::class;
+        } else if (self::isDivItemAbsctractKeywordCrawler($articlePage)) {
+            Log::info("Using " . DivItemAbstractKeywordCrawler::class);
+            return DivItemAbstractKeywordCrawler::class;
         } else if (self::isAbstractKeywordKeywordCrawler($articlePage)) {
             Log::info("Using " . AbstractKeywordKeywordCrawler::class);
             return AbstractKeywordKeywordCrawler::class;
@@ -199,6 +203,18 @@ class CrawlerMethodFactory
             Helper::getFirstRegexOnResponse($articlePage, '/<div class="item keywords">[\s\S]+<span class="value">([\s\S]+?)<\/span>/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip div item keyword crawler";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDivItemAbsctractKeywordCrawler(ResponseInterface $articlePage)
+    {
+        try {
+            Helper::getFirstRegexOnResponse($articlePage, '/<div class="item abstract">[\s\S]+<p>[\s\S]+Kata [Kk]unci: ([\s\S]+?)<\/p>/', 'Keyword');
+        } catch (Exception $e) {
+            echo $e->getMessage() . ". Skip div item abstract keyword crawler";
             return false;
         }
 
