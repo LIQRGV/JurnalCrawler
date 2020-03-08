@@ -52,10 +52,10 @@ class Helper
     }
 
     public static function getDelimiter(string $text) {
-        if (strpos($text, ';') !== false) {
-            return ';';
+        if (strpos($text, ',') !== false) {
+            return ',';
         }
 
-        return ',';
+        return ';';
     }
 }

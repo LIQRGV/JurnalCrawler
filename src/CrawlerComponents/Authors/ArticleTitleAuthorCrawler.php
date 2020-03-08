@@ -25,11 +25,12 @@ class ArticleTitleAuthorCrawler extends BaseAuthorCrawler implements Crawlable
         $rawAuthorString = $authorCapture[1][0];
         $sanitizedAuthorString = trim(preg_replace('/<sup>.*?<\/sup>/', '', $rawAuthorString));
         $authorsArray = array_filter(explode(',', $sanitizedAuthorString));
+        $sanitizedAuthorArray = str_replace('’', "'", $authorsArray);
 
-        foreach ($authorsArray as $author) {
+        foreach ($sanitizedAuthorArray as $author) {
             Author::query()->insert([
                 'article_id' => $this->articleId,
-                'author_name' => trim($author),
+                'author_name' => htmlspecialchars_decode(trim($author), ENT_QUOTES),
             ]);
         }
     }

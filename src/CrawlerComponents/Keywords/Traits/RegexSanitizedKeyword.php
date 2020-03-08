@@ -15,8 +15,10 @@ trait RegexSanitizedKeyword
                 preg_match_all('/[a-zA-Z\-\s]+/', $item, $out);
                 return $out[0][0];
             },
-            str_replace(':', '',
-                preg_replace('/<.*>/', '', $keywordArray))
+            str_replace('’',"'",
+                str_replace(':', '',
+                    preg_replace('/<.*?>/', '', $keywordArray))
+            )
         );
     }
 }
