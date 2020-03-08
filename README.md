@@ -20,4 +20,4 @@
 - Untuk menjalankan job, lakukan perintah `php artisan horizon`, tunggu hingga semua job selesai.
 
 ### Tips
-Jika memiliki banyak web yang ingin di-crawl, simpan list situs dalam 1 file CSV pada kolom A. Setelah itu, jalankan perintah ini `awk -F"," 'FNR > 1 && FNR < 32 {print $1}' nama_file.csv | xargs -I {} php artisan crawl --url={}`
+Jika memiliki banyak web yang ingin di-crawl, simpan list situs dalam 1 file CSV pada kolom A. Setelah itu, jalankan perintah ini `awk -F"," 'FNR > 1 {print $1}' nama_file.csv | xargs -I {} php artisan crawl --url={}`
