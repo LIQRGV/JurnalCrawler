@@ -22,7 +22,7 @@ class TocArticleCrawler extends BaseArticleCrawler implements Crawlable
             'url' => $this->url,
         ])->firstOrFail();
 
-        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $this->issueId . '/showToc', $this->url);
+        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $this->siteIssueId . '/showToc', $this->url);
         $archivePage = Helper::getPageFromUrl($targetUrl);
         $allArticles = Helper::getByRegexOnResponse($archivePage, '/http.+article\/view\/(\d+)/');
         if (empty($allArticles) || empty($allArticles[1])) {

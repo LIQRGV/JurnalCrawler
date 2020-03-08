@@ -41,10 +41,7 @@ class SaveIssueJob implements ShouldQueue
 
     private function crawlIssue(Site $site, int $issueId, Dispatcher $dispatcher)
     {
-        $crawlerMethodClass = CrawlerMethodFactory::getArticleCrawlerMethod($this->site->url, $this->issueId);
-        /** @var Crawlable $issueCrawlerMethod */
-        $issueCrawlerMethod = new $crawlerMethodClass($this->site->url, $this->issueId);
-        $issueCrawlerMethod->run($dispatcher);
+        $crawlerMethodClass = CrawlerMethodFactory::getArticleCrawlerMethod($site->url, $issueId);
 
         Issue::query()->updateOrInsert([
             'site_id' => $site->id,
@@ -52,5 +49,15 @@ class SaveIssueJob implements ShouldQueue
         ], [
             'is_complete' => true,
         ]);
+
+        $issue = Issue::query()->where([
+            'site_id' => $site->id,
+            'site_issue_id' => $issueId,
+            'is_complete' => true,
+        ])->first();
+
+        /** @var Crawlable $issueCrawlerMethod */
+        $issueCrawlerMethod = new $crawlerMethodClass($site->url, $issue->id, $issueId);
+        $issueCrawlerMethod->run($dispatcher);
     }
 }

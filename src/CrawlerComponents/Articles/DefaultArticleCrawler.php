@@ -22,7 +22,7 @@ class DefaultArticleCrawler extends BaseArticleCrawler implements Crawlable
             'url' => $this->url,
         ])->firstOrFail();
 
-        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $this->issueId, $this->url);
+        $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $this->siteIssueId, $this->url);
         $archivePage = Helper::getPageFromUrl($targetUrl);
         $allArticles = Helper::getByRegexOnResponse($archivePage, '/http.+article\/view\/(\d+)/');
         if (empty($allArticles) || empty($allArticles[1])) {
