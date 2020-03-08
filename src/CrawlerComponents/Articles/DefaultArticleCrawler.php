@@ -24,7 +24,7 @@ class DefaultArticleCrawler extends BaseArticleCrawler implements Crawlable
 
         $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $this->siteIssueId, $this->url);
         $archivePage = Helper::getPageFromUrl($targetUrl);
-        $allArticles = Helper::getByRegexOnResponse($archivePage, '/http.+article\/view\/(\d+)/');
+        $allArticles = Helper::getByRegexOnResponse($archivePage, '/(?:https?:)?\/\/.+article\/view\/(\d+)/');
         if (empty($allArticles) || empty($allArticles[1])) {
             Log::info("No article found");
             return;

@@ -112,7 +112,7 @@ class CrawlerMethodFactory
 
         try {
             $archivePage = Helper::getPageFromUrl($url);
-            Helper::getFirstRegexOnResponse($archivePage, '/http.+issue\/view\/\d+/', 'Issue');
+            Helper::getFirstRegexOnResponse($archivePage, '/(?:https?:)?\/\/.+issue\/view\/\d+/', 'Issue');
         } catch (\Exception $e) {
             echo $e->getMessage() . ". Skip default issue crawler";
             return false;
@@ -126,7 +126,7 @@ class CrawlerMethodFactory
         $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $issueId, $url);
         try {
             $issuePage = Helper::getPageFromUrl($targetUrl);
-            Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
+            Helper::getFirstRegexOnResponse($issuePage, '/(?:https?:)?\/\/.+article\/view\/(\d+)/');
         } catch (\Exception $e) {
             echo $e->getMessage() . ". Skip default article crawler";
             return false;
@@ -140,7 +140,7 @@ class CrawlerMethodFactory
         $targetUrl = preg_replace('/issue\/archive/', 'issue/view/' . $issueId . '/showToc', $url);
         try {
             $issuePage = Helper::getPageFromUrl($targetUrl);
-            Helper::getFirstRegexOnResponse($issuePage, '/http.+article\/view\/(\d+)/');
+            Helper::getFirstRegexOnResponse($issuePage, '/(?:https?:)?\/\/.+article\/view\/(\d+)/');
         } catch (\Exception $e) {
             echo $e->getMessage() . ". Skip toc article crawler";
             return false;

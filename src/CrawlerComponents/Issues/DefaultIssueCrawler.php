@@ -22,7 +22,7 @@ class DefaultIssueCrawler extends BaseIssueCrawler implements Crawlable
         ]);
 
         $archivePage = Helper::getPageFromUrl($this->url);
-        $allIssues = Helper::getByRegexOnResponse($archivePage, '/http.+issue\/view\/(\d+)/');
+        $allIssues = Helper::getByRegexOnResponse($archivePage, '/(?:https?:)?\/\/.+issue\/view\/(\d+)/');
         if (empty($allIssues) || empty($allIssues[1])) {
             Log::info("No issue found");
             return;
