@@ -15,6 +15,6 @@ class AbstractKeywordKeywordCrawler extends RegexKeywordCrawler implements Crawl
 
     function getKeywordCapture(ResponseInterface $response): array
     {
-        return Helper::getByRegexOnResponse($response, '/<div id="articleAbstract">[\s\S]+[Kk]ey\s?[Ww]ords?([\s\S]+?)<\/p>/');;
+        return Helper::getByRegexOnResponse($response, '/<div id="articleAbstract">[\s\S]+[Kk][\s\S]*?ey\s?[Ww]ords?([\s\S]+?)(?:(?:<\/p>)|(?:<\/div>))/');
     }
 }

@@ -224,7 +224,7 @@ class CrawlerMethodFactory
     private static function isAbstractKeywordKeywordCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+[Kk]ey\s?[Ww]ords?([\s\S]+?)<\/p>/', 'Keyword');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+[Kk][\s\S]*?ey\s?[Ww]ords?([\s\S]+?)(?:(?:<\/p>)|(?:<\/div>))/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip abstract keyword keyword crawler";
             return false;
@@ -252,7 +252,7 @@ class CrawlerMethodFactory
     private static function isAbstractKataKunciKeywordCrawler(ResponseInterface $articlePage)
     {
         try {
-            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+Kata [Kk]unci?([\s\S]+?)<\/p>/', 'Keyword');
+            Helper::getFirstRegexOnResponse($articlePage, '/<div id="articleAbstract">[\s\S]+Kata(?:\-kata)? [Kk]unci:?([\s\S]+?)<\/p>/', 'Keyword');
         } catch (Exception $e) {
             echo $e->getMessage() . ". Skip abstract kata kunci keyword crawler";
             return false;

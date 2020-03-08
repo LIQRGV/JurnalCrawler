@@ -15,6 +15,6 @@ class AbstractKataKunciKeywordCrawler extends RegexKeywordCrawler implements Cra
 
     function getKeywordCapture(ResponseInterface $response): array
     {
-        return Helper::getByRegexOnResponse($response, '/<div id="articleAbstract">[\s\S]+Kata [Kk]unci:?([\s\S]+?)<\/p>/');
+        return Helper::getByRegexOnResponse($response, '/<div id="articleAbstract">[\s\S]+Kata(?:\-kata)? [Kk]unci:?([\s\S]+?)<\/p>/');
     }
 }
