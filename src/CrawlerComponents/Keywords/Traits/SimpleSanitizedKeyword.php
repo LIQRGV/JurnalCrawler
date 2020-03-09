@@ -10,8 +10,10 @@ trait SimpleSanitizedKeyword
         $keywordDelim = Helper::getDelimiter($keyword);
         return array_filter(
             str_replace('’',"'",
-                preg_replace('/<a.*\/a>/', '',
-                    explode($keywordDelim, $keyword)
+                preg_replace('/<.*?>/', '',
+                    preg_replace('/<a.*\/a>/', '',
+                        explode($keywordDelim, $keyword)
+                    )
                 )
             )
         );
