@@ -25,9 +25,10 @@ class DefaultAuthorCrawler extends BaseAuthorCrawler implements Crawlable
         $sanitizedAuthorArray = str_replace('’', "'", $authorsArray);
 
         foreach ($sanitizedAuthorArray as $author) {
+            $strippedDashAuthor = str_replace('-', '', $author);
             Author::query()->insert([
                 'article_id' => $this->articleId,
-                'author_name' => htmlspecialchars_decode(trim($author), ENT_QUOTES),
+                'author_name' => htmlspecialchars_decode(trim($strippedDashAuthor), ENT_QUOTES),
             ]);
         }
     }
